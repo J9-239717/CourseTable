@@ -814,7 +814,7 @@ void RenderSetup(RenderOptions options, Callback updateCallback, Callback drawCa
   renderer.totalMemorySize = Clay_MinMemorySize();
   renderer.clayMemory = Clay_CreateArenaWithCapacityAndMemory(renderer.totalMemorySize, malloc(renderer.totalMemorySize));
   Clay_Initialize(renderer.clayMemory, (Clay_Dimensions){(float)GetScreenWidth(), (float)GetScreenHeight()}, (Clay_ErrorHandler){HandleClayErrors, 0});
-  Clay_Raylib_Initialize(options.width, options.height, options.windowName, FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
+  Clay_Raylib_Initialize(options.width, options.height, options.windowName,FLAG_WINDOW_MAXIMIZED);
 
   renderer.fonts[FONT_18] = LoadFontEx(options.fontPath, 18, 0, 250);
   SetTextureFilter(renderer.fonts[FONT_18].texture, TEXTURE_FILTER_BILINEAR);

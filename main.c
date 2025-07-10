@@ -1,63 +1,25 @@
 #define CLAY_IMPLEMENTATION
 #define RENDERER_IMPLEMENTATION
+#define HANDLE_TYPING
+#define UI_
 
 #include "clay.h"
 #include "renderer.h"
+#include "typing.c"
 
+typedef struct {
+    Arena arena; // For UI text allocations
+    bool typing;
+}State;
+State state = {0};
 
-void Test(){
-    Clay_TextElementConfig *textConfig = CLAY_TEXT_CONFIG(
-        {
-            .fontId = FONT_24,
-            .fontSize = 24,
-            .textColor = CREAM
-        }
-    );
-    Clay_TextElementConfig *textHeaderConfig = CLAY_TEXT_CONFIG(
-        {
-            .fontId = FONT_24,
-            .fontSize = 24,
-            .textColor = CREAM
-        }
-    );
-    Box(
-        .id = "Body",
-        .pt = 42,
-        .align = "tc",
-        .w = "grow-0",
-        .h = "grow-0",
-        .bg = NEUTRAL_950
-    ){
-        Column(
-            .bg = NEUTRAL_950,
-            .pb = 7,
-            .w = "fit-450",
-            .gap = 8,
-            .borderRadius = "a-lg"
-        ){
-            Row(
-                .id = "Top-Row",
-                .bg = NEUTRAL_950,
-                .w = "grow-0",
-                .pt = 10,
-                .pb = 5,
-                .pl = 9,
-                .pr = 7,
-                .gap = 5,
-                .borderRadius = "t-lg"
-            ){
-                TextS("COURSES TABLE \n", textHeaderConfig);
-                Separator(.px = 3);
-                TextS("Program", textConfig);
-            }
-        }
-    }
-}
+#include "UI.c"
+
 
 Clay_RenderCommandArray CreateLayout(){
     Clay_BeginLayout();
     {
-        Test();
+        MainPage();
     }
     return Clay_EndLayout();
 }
@@ -70,19 +32,33 @@ void draw(){
         Clay_Raylib_Render(renderCommand, renderer.fonts);
     }
     EndDrawing();
-
+    ArenaReset(&state.arena);
 }
 
 void update(){
+    if(IsKeyPressed(KEY_EQUAL)){
+        state.typing = !state.typing;
+        resetStringBuffer();
+    }
+
+    if(state.typing){
+        handleTyping();
+    }
     return;
 }
 
+void init(){
+    state.arena = ArenaInit(40096);
+    state.typing = false;
+}
+
 int main(){
+    init();
     {
         RenderOptions options = {
-            .width = 800,
-            .height = 600,
-            .windowName = "Clay Renderer",
+            .width = 1600,
+            .height = 900,
+            .windowName = "Courses Visual Program",
             .fontPath = "./res/ComicMono.ttf"
         };
         RenderSetup(options, update, draw);
