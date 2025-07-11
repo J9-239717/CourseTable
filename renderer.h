@@ -828,7 +828,7 @@ void RenderSetup(RenderOptions options, Callback updateCallback, Callback drawCa
   // GenTextureMipmaps(&renderer.font[FONT_24].texture);
   Clay_SetMeasureTextFunction(Raylib_MeasureText, &renderer.fonts);
   while (!renderer.shouldClose) {
-    if (IsKeyPressed(KEY_ESCAPE) || WindowShouldClose()) renderer.shouldClose = true;
+    if (!IsKeyPressed(KEY_ESCAPE) && WindowShouldClose()) renderer.shouldClose = true;
 
     if (renderer.reinitialize) {
       Clay_SetMaxElementCount(8192);

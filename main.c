@@ -12,6 +12,7 @@ typedef struct {
     bool typing;
 }State;
 State state = {0};
+int8_t selection_index = 0;
 
 #include "UI.c"
 
@@ -43,6 +44,17 @@ void update(){
 
     if(state.typing){
         handleTyping();
+    }else{
+        // choose page
+        if(IsKeyPressed(KEY_APOSTROPHE)){
+            selection_index--;
+            if(selection_index < 0) selection_index = 0;
+        }
+
+        if(IsKeyPressed(KEY_SEMICOLON)){
+            selection_index++;
+            if(selection_index >= SIZE_PAGE) selection_index = SIZE_PAGE -1;
+        }
     }
     return;
 }
