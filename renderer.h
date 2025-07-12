@@ -758,10 +758,13 @@ void HandleClayErrors(Clay_ErrorData errorData) {
 }
 
 static void initDraw() {
-  if (IsKeyPressed(KEY_F2)) {
-    renderer.debugEnabled = !renderer.debugEnabled;
-    Clay_SetDebugModeEnabled(renderer.debugEnabled);
-  }
+
+  #ifdef DEBUG
+    if (IsKeyPressed(KEY_F2)) {
+      renderer.debugEnabled = !renderer.debugEnabled;
+      Clay_SetDebugModeEnabled(renderer.debugEnabled);
+    }
+  #endif
 
   Clay_Vector2 mousePosition = RAYLIB_VECTOR2_TO_CLAY_VECTOR2(GetMousePosition());
   Clay_SetPointerState(mousePosition, IsMouseButtonDown(0));

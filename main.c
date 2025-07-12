@@ -2,6 +2,7 @@
 #define RENDERER_IMPLEMENTATION
 #define HANDLE_TYPING
 #define UI_
+#define DEBUG
 
 #include "clay.h"
 #include "renderer.h"
@@ -10,6 +11,7 @@
 typedef struct {
     Arena arena; // For UI text allocations
     bool typing;
+    bool init;
 }State;
 State state = {0};
 int8_t selection_index = 0;
@@ -20,7 +22,23 @@ int8_t selection_index = 0;
 Clay_RenderCommandArray CreateLayout(){
     Clay_BeginLayout();
     {
-        MainPage();
+        switch (page_state)
+        {
+        case Login_page:
+                if(!state.init){
+                    state.typing = true; // make sure this page should typing
+                    state.init = true;
+                }
+            LoginPage();
+            break;
+        default:
+                if(!state.init){
+                    state.typing = false; // default of this page
+                    state.init = true;
+                }
+            MainPage();
+            break;
+        }
     }
     return Clay_EndLayout();
 }
@@ -37,24 +55,50 @@ void draw(){
 }
 
 void update(){
-    if(IsKeyPressed(KEY_EQUAL)){
-        state.typing = !state.typing;
-        resetStringBuffer();
+
+    // Debug
+    if(IsKeyPressed(KEY_F1)){
+        if(page_state == Login_page){
+            page_state = Main_page;
+        }else{
+            page_state = Login_page;
+        }
+        state.init = false;
     }
 
-    if(state.typing){
-        handleTyping();
-    }else{
-        // choose page
-        if(IsKeyPressed(KEY_APOSTROPHE)){
-            selection_index--;
-            if(selection_index < 0) selection_index = 0;
+    switch (page_state)
+    {
+        case Login_page: {
+            handleTyping();
+            if(IsKeyPressed(KEY_ENTER)){ // TODO: should handle login logic
+                page_state = Main_page;
+                state.init = false;
+            }
         }
+        case Main_page: {
+            // Handle change state typing
+            if(IsKeyPressed(KEY_EQUAL)){
+                state.typing = !state.typing;
+                resetStringBuffer();
+            }
+            // Handle typing
+            if(state.typing){
+                handleTyping();
+            }else{
+                // choose page
+                if(IsKeyPressed(KEY_UP)){
+                    selection_index--;
+                    if(selection_index < 0) selection_index = 0;
+                }
 
-        if(IsKeyPressed(KEY_SEMICOLON)){
-            selection_index++;
-            if(selection_index >= SIZE_PAGE) selection_index = SIZE_PAGE -1;
+                if(IsKeyPressed(KEY_DOWN)){
+                    selection_index++;
+                    if(selection_index >= SIZE_PAGE) selection_index = SIZE_PAGE -1;
+                }
+            }
         }
+        default:
+            break;
     }
     return;
 }
@@ -62,6 +106,7 @@ void update(){
 void init(){
     state.arena = ArenaInit(40096);
     state.typing = false;
+    state.init = true;
 }
 
 int main(){

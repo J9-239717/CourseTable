@@ -158,7 +158,11 @@ void handleTyping(){
     }
 
     if(IsKeyPressed(KEY_BACKSPACE)){
-        string_buffer.buffer[--string_buffer.pt] = '\0';
+        string_buffer.pt--;
+        if(string_buffer.pt < 0){
+            string_buffer.pt = 0;
+        }
+        string_buffer.buffer[string_buffer.pt] = '\0';
     }
 }
 
