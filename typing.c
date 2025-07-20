@@ -8,7 +8,7 @@ typedef struct{
 }String_buffer;
 String_buffer string_buffer = {0};
 
-int isEmpty(){
+int isBufferEmpty(){
     return string_buffer.pt == 0 ? 1 : 0;
 }
 

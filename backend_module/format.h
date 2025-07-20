@@ -1,0 +1,65 @@
+#include <stdint.h>
+
+#define SUBJECT_NAME_SIZE 64
+#define SUBJECT_ID_SIZE 8
+
+typedef unsigned char bype;
+
+typedef struct{
+    char SUBJECT_ID[SUBJECT_ID_SIZE];                // ID of subject ex: IT3100
+    char SUBJECT_NAME[SUBJECT_NAME_SIZE];            // Name of Subject
+    bype term;                                       // Term recomment of Subject
+    bype credit_hour;                                // Credit hour of Subject
+    bype ratio;                                      // Ratio calculate
+    Subject_Payload* link;                           // Link to another subject with same type
+}Subject_Payload;
+
+typedef struct{
+    Subject_Payload* buffer;
+    int16_t curroffset;
+    int16_t capacity;
+}Subject_Pooling;
+
+typedef struct{
+    char Subject_Type_Name[SUBJECT_NAME_SIZE];       // Name of Subject Type
+    Subject_Payload head;                            // Head of Subject
+}Subject_Type_Payload;
+
+typedef struct{
+    int16_t capacity_type_subject;                   // Size of subject type list
+    Subject_Type_Payload* list_type_subject;         // List of subject type
+}Data_Payload;
+
+// standard data date 7/20/2025 referent in table of subject of hanoi university of science and technology,
+// major : Computer Science (IT1)
+// gen : 68 (2023)
+typedef enum {
+    co_so_nganh,
+    dai_cuong,
+    the_thao,
+    ly_luat_chinh_tri,
+    tu_chon,
+    thuc_tap,
+    modunI,
+    modunII,
+    modunIII,
+    modunIV,
+    modunV,
+    do_an_tot_nghiep,
+    sizeSubjectType
+} index_subject_type;
+
+typedef enum{
+    rt_50,
+    rt_60,
+    rt_70 
+}ratio_subject_t;
+
+const char* name_SJ_t[] = {
+        "co_so_nganh", "dai_cuong", "the_thao", "ly_luat_chinh_tri", 
+        "tu_chon", "thuc_tap", "modunI", "modunII", 
+        "modunIII", "modunIV", "modunV", "do_an_tot_nghiep"
+};
+
+void Check_Environment();
+void Write_Environment();

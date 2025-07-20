@@ -12,6 +12,7 @@ typedef struct {
     Arena arena; // For UI text allocations
     bool typing;
     bool init;
+    bool error; // For show Error texts
 }State;
 State state = {0};
 int8_t selection_index = 0;
@@ -71,8 +72,13 @@ void update(){
         case Login_page: {
             handleTyping();
             if(IsKeyPressed(KEY_ENTER)){ // TODO: should handle login logic
+                if(isBufferEmpty()){ // check if it's empty
+                    state.error = true;
+                    break;
+                }
                 page_state = Main_page;
                 state.init = false;
+                state.error = false;
             }
         }
         case Main_page: {
@@ -107,6 +113,11 @@ void init(){
     state.arena = ArenaInit(40096);
     state.typing = false;
     state.init = true;
+    state.error = false;
+}
+
+void clear(){
+    ArenaFree(&state.arena);
 }
 
 int main(){
@@ -120,5 +131,5 @@ int main(){
         };
         RenderSetup(options, update, draw);
     }
-    
+    clear();
 }

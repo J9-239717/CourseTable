@@ -27,6 +27,12 @@ const char* page_name[] = {
 
 #define space_y_column_250 Row(.bg = NEUTRAL_950,.h = "fixed-250"){}
 
+Clay_TextElementConfig textError = (Clay_TextElementConfig) {
+    .fontId = FONT_24,
+    .fontSize = 24,
+    .textColor = RED_500
+};
+
 void MainPage(){
     Clay_TextElementConfig *textConfig = CLAY_TEXT_CONFIG(
         {
@@ -88,7 +94,7 @@ void MainPage(){
                             .px = 2,
                             .w = "Fixed-10"
                         );
-                        if(!isEmpty()){
+                        if(!isBufferEmpty()){
                             Text(F(&state.arena, "%s", string_buffer.buffer),textConfig);
                         }
                     }
@@ -227,13 +233,16 @@ int8_t LoginPage(){
                             .px = 2,
                             .w = "Fixed-10"
                         );
-                        if(!isEmpty()){
+                        if(!isBufferEmpty()){
                             Text(F(&state.arena, "%s", string_buffer.buffer),textConfig);
                         }
                     }
                 }
             }
             TextS("     Enter -NEW first if want to create new file or nothing if want to Login",textConfig);
+            if(state.error){
+                TextS("     Please enter name of file correctly or enter something correctly", &textError);
+            }
         }
     }
 }
