@@ -1,5 +1,6 @@
 #include <string.h>
 #include "format.h"
+#define _CONST_SUBJECT
 
 // check if dont have standard file it's will write it again
 void Check_Environment(){
@@ -40,7 +41,7 @@ void Write_Environment(){
     // Init Main Data Storate
     Data_Payload data = (Data_Payload){.capacity_type_subject = sizeSubjectType, .list_type_subject = NULL};
     Subject_Type_Payload list[data.capacity_type_subject];
-    for(int i = 0; i < data.capacity_type_subject; i++) list[i].head.term = 0;
+    for(int i = 0; i < data.capacity_type_subject; i++) list[i].head.term = 99;
     data.list_type_subject = list;
 
     // Init Name of Type Subject
@@ -49,105 +50,11 @@ void Write_Environment(){
     }
 
     // Init Pooling
-    Init_Pool(256);
+    Init_Pool(512);
 
-    {
-        // co so nganh
-        pair arr[] = {
-            {1,3,rt_50},
-            {2,2,rt_60},
-            {3,3,rt_70},
-            {4,2,rt_60},
-            {4,3,rt_60},
-            {4,3,rt_50},
-            {5,3,rt_50},
-            {3,2,rt_70},
-            {6,2,rt_60},
-            {5,2,rt_50},
-            {4,3,rt_60},
-            {5,2,rt_60},
-            {5,3,rt_60},
-            {5,3,rt_60},
-            {6,2,rt_50},
-            {7,3,rt_50},
-            {6,3,rt_60},
-            {8,2,rt_60},
-            {6,2,rt_50},
-        };
-        char* name[] = {
-            "Introduction to IT and Communications",
-            "Data Structures and Algorithms",
-            "Computer Architecture",
-            "Programming Techniques",
-            "Principles of Operating Systems",
-            "Computer Networks",
-            "Database Systems",
-            "Object-Oriented Programming",
-            "System Analysis and Design",
-            "Project I",
-            "Introduction to Artificial Intelligence",
-            "Applied Algorithms",
-            "Introduction to Software Engineering",
-            "Introduction to Machine Learning and Data Mining",
-            "Project II",
-            "Project III",
-            "Introduction to Information Security",
-            "IT Project Management",
-            "Deep Learning and Its Applications"
-        };
-        char* ID[] = {
-            "IT2000",
-            "IT3011",
-            "IT3030",
-            "IT3040",
-            "IT3070",
-            "IT3080",
-            "IT3090",
-            "IT3100",
-            "IT3120",
-            "IT3150",
-            "IT3160",
-            "IT3170",
-            "IT3180",
-            "IT3190",
-            "IT3930",
-            "IT3940",
-            "IT4015",
-            "IT4244",
-            "IT4653"
-        };
-        int size = sizeof(arr) / sizeof(arr[0]);
+    #include "const_subject.h"
 
-        Subject_Payload *curr = NULL, *temp = NULL;
-        temp = Allocate_Pool(
-            (Subject_Payload){
-                .term = arr[0].x,
-                .credit_hour = arr[0].y,
-                .ratio = arr[0].z,
-                .link = NULL
-            }
-        );
-        strncpy(temp->SUBJECT_ID,ID[0],SUBJECT_ID_SIZE);
-        strncpy(temp->SUBJECT_NAME,name[0],SUBJECT_NAME_SIZE);
-        list[co_so_nganh].head = *temp;
-        curr = &list[co_so_nganh].head;
-        for(int i = 1; i < size; i++){
-            temp = Allocate_Pool(
-                (Subject_Payload){
-                    .term = arr[i].x,
-                    .credit_hour = arr[i].y,
-                    .ratio = arr[i].z,
-                    .link = NULL
-                }
-            );
-            strncpy(temp->SUBJECT_ID,ID[i],SUBJECT_ID_SIZE);
-            strncpy(temp->SUBJECT_NAME,name[i],SUBJECT_NAME_SIZE);
-
-            curr->link = temp;
-            curr = curr->link;
-        }
-    }
-
+    
     // write all data to file
     int32_t magic_b = 0x12345678; // using for check endainness
     fwrite(&magic_b,1,4,file);
@@ -157,7 +64,7 @@ void Write_Environment(){
     for(int i = 0; i < data.capacity_type_subject; i++){
         fwrite(&data.list_type_subject[i].Subject_Type_Name,1,SUBJECT_NAME_SIZE,file);
         curr = &data.list_type_subject[i].head;
-        if(curr->term == 0){
+        if(curr->term == 99){
             temp_b = 0x00;
             fwrite(&temp_b,1,1,file);
             continue;
@@ -167,7 +74,7 @@ void Write_Environment(){
             fwrite(&temp_b,1,1,file);
             fwrite(&curr->term,1,1,file);
             fwrite(&curr->credit_hour,1,1,file);
-            fwrite(&curr->ratio,1,1,file);
+            fwrite(&ratio_map[curr->ratio],1,1,file);
             fwrite(curr->SUBJECT_ID,1,SUBJECT_ID_SIZE,file);
             fwrite(curr->SUBJECT_NAME,1,SUBJECT_NAME_SIZE,file);
             curr = curr->link;

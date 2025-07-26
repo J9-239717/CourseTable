@@ -10,7 +10,7 @@ typedef unsigned char bype;
 typedef struct _Subject_Payload{
     char SUBJECT_ID[SUBJECT_ID_SIZE];                // ID of subject ex: IT3100
     char SUBJECT_NAME[SUBJECT_NAME_SIZE];            // Name of Subject
-    bype term;                                       // Term recomment of Subject *** using 0 for make head empty ***
+    bype term;                                       // Term recomment of Subject *** using 99 for make head empty ***
     bype credit_hour;                                // Credit hour of Subject
     bype ratio;                                      // Ratio calculate
     struct _Subject_Payload* link;                   // Link to another subject with same type
@@ -108,6 +108,8 @@ typedef enum{
     rt_60,
     rt_70 
 }ratio_subject_t;
+
+bype ratio_map[] = {50,60,70};
 
 const char* name_SJ_t[] = {
         "co_so_nganh", "dai_cuong", "the_thao", "ly_luat_chinh_tri", 
