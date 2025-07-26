@@ -1,18 +1,69 @@
 #include <string.h>
-#include "format.h"
 #define _CONST_SUBJECT
 
-// check if dont have standard file it's will write it again
-void Check_Environment(){
-    FILE* file = fopen("file/standardFile/standard_data.edbj", "rb");
-    if(file){
-        printf("File Ok\n");
-        return;
-    }
+#include "../backend_api.h"
 
+Subject_Pooling subject_pooling = {0};
+
+bype ratio_map[] = {50,60,70};
+
+const char* name_SJ_t[] = {
+        "co_so_nganh", "dai_cuong", "the_thao", "ly_luat_chinh_tri", 
+        "tu_chon", "thuc_tap", "modunI", "modunII", 
+        "modunIII", "modunIV", "modunV", "do_an_tot_nghiep"
+};
+
+int IsPoolEmpty(){
+    return subject_pooling.curroffset == 0;
 }
 
-void Write_Environment(){
+void Init_Pool(int16_t size){
+    subject_pooling.buffer = (Subject_Payload*) malloc(size * sizeof(Subject_Payload));
+    subject_pooling.capacity = size;
+    subject_pooling.curroffset = 0;
+}
+
+Subject_Payload* Allocate_Pool(const Subject_Payload src){
+    if(subject_pooling.curroffset >= subject_pooling.capacity){
+        printf("[Alert] Buffer Pooling Subject Payload is full\n");
+        return NULL;
+    }
+    subject_pooling.buffer[subject_pooling.curroffset++] = src;
+    return &subject_pooling.buffer[subject_pooling.curroffset-1];
+}
+
+int Pop_Pool(Subject_Payload* ret){
+    if(IsPoolEmpty()){
+        printf("[Alert] Buffer Pooling is Empty\n");
+        return 0;
+    }
+
+    *ret = subject_pooling.buffer[subject_pooling.curroffset--];
+    return 1;
+}
+
+int Detroy_Pool(){
+    if(subject_pooling.buffer == NULL){
+        printf("[Alert] Pooling have not been allocate allocate\n");
+        return 0;
+    }
+
+    free(subject_pooling.buffer);
+    subject_pooling.buffer = NULL;
+    subject_pooling.capacity = subject_pooling.curroffset = 0;
+    return 1;
+}
+
+int Clear_Pool(){
+    if(IsPoolEmpty()){
+        printf("[Alert] Buffer Pooling is Empty\n");
+        return 0;
+    }
+
+    subject_pooling.curroffset = 0;
+}
+
+int Write_Environment(){
     // standard data date 7/20/2025 referent in table of subject of hanoi university of science and technology,
     // major : Computer Science (IT1)
     // gen : 68 (2023)
@@ -35,8 +86,10 @@ void Write_Environment(){
     FILE* file = fopen("file/standardFile/standard_data.edbj", "wb");
     if (!file) {
         perror("[Error] Failed to create file");
-        return;
+        return 0;
     }
+
+    printf("[FUNC] Write Standard File Default\n");
 
     // Init Main Data Storate
     Data_Payload data = (Data_Payload){.capacity_type_subject = sizeSubjectType, .list_type_subject = NULL};
@@ -52,7 +105,7 @@ void Write_Environment(){
     // Init Pooling
     Init_Pool(512);
 
-    #include "const_subject.h"
+    #include "macro/const_subject.c"
 
     
     // write all data to file
@@ -90,4 +143,19 @@ void Write_Environment(){
     fclose(file);
 
     printf("[FUNC] Completed Write File\n");
+    return 1;
+}
+
+// check if dont have standard file it's will write it again
+int Check_Environment(){
+    FILE* file = fopen("file/standardFile/standard_data.edbj", "rb");
+    if(file){
+        printf("[Alert] File Ok\n");
+        fclose(file);
+        return 0;
+    }
+    printf("[Alert] Something wrong with your file\n");
+    fclose(file);
+    Write_Environment();
+    return 1;
 }
