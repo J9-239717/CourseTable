@@ -14,8 +14,8 @@
 #pragma once
 
 #include "clay.h"
-#include "raylib/raylib.h"
-#include "raylib/raymath.h"
+#include "../raylib/raylib.h"
+#include "../raylib/raymath.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include <assert.h>

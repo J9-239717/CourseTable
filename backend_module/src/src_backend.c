@@ -114,6 +114,10 @@ int Write_Environment(){
     fwrite(&data.capacity_type_subject,1,2,file);
     Subject_Payload* curr = NULL;
     bype temp_b = 0x00;
+    bype each_size[data.capacity_type_subject];
+    memset(each_size,0,data.capacity_type_subject);
+    // write n (n = capacity of type subject) for store size of each type subject
+    for(int i = 0; i < data.capacity_type_subject ;i++) fwrite(&temp_b,1,1,file);
     for(int i = 0; i < data.capacity_type_subject; i++){
         fwrite(&data.list_type_subject[i].Subject_Type_Name,1,SUBJECT_NAME_SIZE,file);
         curr = &data.list_type_subject[i].head;
@@ -130,10 +134,18 @@ int Write_Environment(){
             fwrite(&ratio_map[curr->ratio],1,1,file);
             fwrite(curr->SUBJECT_ID,1,SUBJECT_ID_SIZE,file);
             fwrite(curr->SUBJECT_NAME,1,SUBJECT_NAME_SIZE,file);
+            each_size[i]++;
             curr = curr->link;
         }
         temp_b = 0x00;
         fwrite(&temp_b,1,1,file);
+    }
+
+    fseek(file,6,SEEK_SET); // Set File Pointer to Offset 6 for write size
+
+    // write size of each type 1 bype by 1 type
+    for(int i = 0 ; i < data.capacity_type_subject; i++){
+        fwrite(&each_size[i],1,1,file);
     }
 
     // Free Pool

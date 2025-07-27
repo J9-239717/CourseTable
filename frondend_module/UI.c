@@ -77,25 +77,37 @@ void MainPage(){
                 Row(
                     .id = "Pointer",
                     .w = "grow-0",
-                    .gap = 5
+                    .gap = 5,
+                    .h = "fixed-55",
+                    .bg = NEUTRAL_200,
+                    .align = "cc",
+                    .borderRadius = "a-xl"
                 ){
-                    Separator(
-                        .px = 1,
-                        .w = "fixed-25"
-                    );
-                    TextS(">", textConfig);
                     Row(
-                        .id = "Task",
-                        .w = "fixed-500",
-                        .gap = 5,
-                        .bg = NEUTRAL_800
+                        .id = "box-in-typing",
+                        .bg = NEUTRAL_950,
+                        .w = "percent-0.99",
+                        .h = "fixed-50",
+                        .borderRadius = "a-l",
+                        .align = "c"
                     ){
                         Separator(
-                            .px = 2,
-                            .w = "Fixed-10"
+                            .px = 1,
+                            .w = "fixed-25"
                         );
-                        if(!isBufferEmpty()){
-                            Text(F(&state.arena, "%s", string_buffer.buffer),textConfig);
+                        TextS(">", textConfig);
+                        Row(
+                            .id = "Task",
+                            .w = "fixed-500",
+                            .gap = 5,
+                        ){
+                            Separator(
+                                .px = 2,
+                                .w = "Fixed-10"
+                            );
+                            if(!isBufferEmpty()){
+                                Text(F(&state.arena, "%s", string_buffer.buffer),textConfig);
+                            }
                         }
                     }
                 }
@@ -216,7 +228,7 @@ int8_t LoginPage(){
                     .bg = NEUTRAL_950,
                     .w = "percent-0.99",
                     .h = "fixed-50",
-                    .borderRadius = "a-l",
+                    .borderRadius = "a-xl",
                     .align = "c"
                 ){
                     Separator(
@@ -239,7 +251,7 @@ int8_t LoginPage(){
                     }
                 }
             }
-            TextS("     Enter -NEW first if want to create new file or nothing if want to Login",textConfig);
+            TextS("     Enter -NEW first if want to create new file or -IN if want to Login",textConfig);
             if(state.error){
                 TextS("     Please enter name of file correctly or enter something correctly", &textError);
             }
