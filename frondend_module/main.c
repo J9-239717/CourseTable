@@ -9,13 +9,27 @@
 #include "typing.c"
 
 typedef struct {
-    Arena arena; // For UI text allocations
-    bool typing;
-    bool init;
-    bool error; // For show Error texts
+    Arena arena;                    // For UI text allocations
+    bool typing;                    // State Typing
+    bool init;                      // Do the state already init
+    bool error;                     // For show Error texts
 }State;
 State state = {0};
 int8_t selection_index = 0;
+
+typedef struct message_box_t{
+    char* buffer;                   // buffer pointer to text
+    char* title;                    // title of massage
+    char* meta;                     // meta data
+    struct message_box_t* next;     // link list
+}message_box;
+
+typedef struct{
+    Arena arena;                    // For Allocate Message System text Store
+    message_box message;            // Message link list
+}Message_store;
+
+Message_store history_message = {0};
 
 #include "UI.c"
 
@@ -109,15 +123,28 @@ void update(){
     return;
 }
 
+void MessageBoxInit(message_box* src){
+    src->buffer = NULL;
+    src->meta = NULL;
+    src->title = NULL;
+    src->next = NULL;
+}
+
 void init(){
+    // Init State
     state.arena = ArenaInit(40096);
     state.typing = false;
     state.init = true;
     state.error = false;
+
+    // Init History Message
+    history_message.arena = ArenaInit(65536);
+    MessageBoxInit(&history_message.message);
 }
 
 void clear(){
     ArenaFree(&state.arena);
+    ArenaFree(&history_message.arena);
 }
 
 int main(){
