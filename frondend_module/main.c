@@ -72,6 +72,7 @@ void draw(){
 char* MessageHistory_Allocate(char* src,size_t size){
     char* buffer = (char*)ArenaAlloc(&history_message.arena, size);
     strncpy(buffer, src, size);
+    buffer[size] = '\0';
     return buffer;
 }
 
@@ -113,14 +114,16 @@ void update(){
                 if(IsKeyPressed(KEY_ENTER)){
                     // Pass String Buffer to Message History
                     if(history_message.message->buffer == NULL){    
-                        // Fist Message
-                        history_message.message->buffer = MessageHistory_Allocate(string_buffer.buffer,string_buffer.pt);
+                        // Frist Message
+                        int length = strlen(string_buffer.buffer);
+                        history_message.message->buffer = MessageHistory_Allocate(string_buffer.buffer,length+1);
                         history_message.message->meta = MessageHistory_Allocate("Input Message",15);
                         history_message.message->title = MessageHistory_Allocate("Command",9);
                         history_message.message->next = NULL;
                     }else{
                         message_box* temp = (message_box*)malloc(sizeof(message_box));
-                        temp->buffer = MessageHistory_Allocate(string_buffer.buffer,string_buffer.pt);
+                        int length = strlen(string_buffer.buffer);
+                        temp->buffer = MessageHistory_Allocate(string_buffer.buffer,length+1);
                         temp->meta = MessageHistory_Allocate("Input Message",15);
                         temp->title = MessageHistory_Allocate("Command",9);
                         temp->next = history_message.message;
@@ -165,6 +168,10 @@ void init(){
     history_message.arena = ArenaInit(65536);
     history_message.message = (message_box*)malloc(sizeof(message_box));
     MessageBoxInit(history_message.message);
+
+    // Init String Buffer Typing
+    string_buffer.pt = 0;
+    string_buffer.buffer[string_buffer.pt] = '\0';
 }
 
 void FreeMessage(){

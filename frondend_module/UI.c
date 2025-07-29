@@ -33,6 +33,18 @@ Clay_TextElementConfig textError = (Clay_TextElementConfig) {
     .textColor = RED_500
 };
 
+Clay_TextElementConfig textDetail = (Clay_TextElementConfig){
+    .fontId = FONT_22,
+    .fontSize = 22,
+    .textColor = GRAY_500
+};
+
+Clay_TextElementConfig textTitle = (Clay_TextElementConfig){
+    .fontId = FONT_24,
+    .fontSize = 24,
+    .textColor = (Clay_Color){255, 255, 255, 255}
+};
+
 void MainPage(){
     Clay_TextElementConfig *textConfig = CLAY_TEXT_CONFIG(
         {
@@ -113,17 +125,35 @@ void MainPage(){
                 }
                 if(history_message.message->buffer != NULL){
                     message_box* curr = history_message.message;
+                    int i = 0;
                     while(curr != NULL){
+                        char* id__ = (char*) ArenaAlloc(&state.arena, 25);
+                        sprintf(id__, "History Message %d", i);
+                        i++;
                         Column(
+                            .id = id__,
                             .h = "fixed-55",
                             .w = "grow-0",
                         ){
-                            Clay_String str = \
-                            (Clay_String){
-                                .length = strlen(curr->buffer),
-                                .chars = curr->buffer
-                            };
-                            Text(str,textConfig);
+                            Row(
+                                .h = "grow-0",
+                                .w = "grow-0"
+                            ){
+                                TextS("  $~  ", textConfig);
+                                Row(
+                                    .h = "fixed-22",
+                                    .w = "fixed-100",
+                                    .bg = GREEN_500,
+                                    .align = "tc"
+                                ){
+                                    Clay_String str = \
+                                    (Clay_String){
+                                        .length = strlen(curr->title),
+                                        .chars = curr->title
+                                    };
+                                    Text(str,&textTitle);
+                                }
+                            }
                         }
                         curr = curr->next;
                     }
