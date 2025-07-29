@@ -111,6 +111,23 @@ void MainPage(){
                         }
                     }
                 }
+                if(history_message.message->buffer != NULL){
+                    message_box* curr = history_message.message;
+                    while(curr != NULL){
+                        Column(
+                            .h = "fixed-55",
+                            .w = "grow-0",
+                        ){
+                            Clay_String str = \
+                            (Clay_String){
+                                .length = strlen(curr->buffer),
+                                .chars = curr->buffer
+                            };
+                            Text(str,textConfig);
+                        }
+                        curr = curr->next;
+                    }
+                }
             }else{
                 // Scrolling choose page to go
                 Row(

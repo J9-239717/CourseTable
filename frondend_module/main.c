@@ -26,7 +26,7 @@ typedef struct message_box_t{
 
 typedef struct{
     Arena arena;                    // For Allocate Message System text Store
-    message_box message;            // Message link list
+    message_box *message;           // Message link list
 }Message_store;
 
 Message_store history_message = {0};
@@ -69,6 +69,12 @@ void draw(){
     ArenaReset(&state.arena);
 }
 
+char* MessageHistory_Allocate(char* src,size_t size){
+    char* buffer = (char*)ArenaAlloc(&history_message.arena, size);
+    strncpy(buffer, src, size);
+    return buffer;
+}
+
 void update(){
 
     // Debug
@@ -104,6 +110,24 @@ void update(){
             // Handle typing
             if(state.typing){
                 handleTyping();
+                if(IsKeyPressed(KEY_ENTER)){
+                    // Pass String Buffer to Message History
+                    if(history_message.message->buffer == NULL){    
+                        // Fist Message
+                        history_message.message->buffer = MessageHistory_Allocate(string_buffer.buffer,string_buffer.pt);
+                        history_message.message->meta = MessageHistory_Allocate("Input Message",15);
+                        history_message.message->title = MessageHistory_Allocate("Command",9);
+                        history_message.message->next = NULL;
+                    }else{
+                        message_box* temp = (message_box*)malloc(sizeof(message_box));
+                        temp->buffer = MessageHistory_Allocate(string_buffer.buffer,string_buffer.pt);
+                        temp->meta = MessageHistory_Allocate("Input Message",15);
+                        temp->title = MessageHistory_Allocate("Command",9);
+                        temp->next = history_message.message;
+                        history_message.message = temp;
+                    }
+                    resetStringBuffer();
+                }
             }else{
                 // choose page
                 if(IsKeyPressed(KEY_UP)){
@@ -139,7 +163,18 @@ void init(){
 
     // Init History Message
     history_message.arena = ArenaInit(65536);
-    MessageBoxInit(&history_message.message);
+    history_message.message = (message_box*)malloc(sizeof(message_box));
+    MessageBoxInit(history_message.message);
+}
+
+void FreeMessage(){
+    message_box *temp = NULL, *curr = history_message.message;
+    while(curr != NULL){
+        temp = curr;
+        curr = curr->next;
+        free(temp);
+    }
+    free(history_message.message);
 }
 
 void clear(){

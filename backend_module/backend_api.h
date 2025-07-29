@@ -32,29 +32,43 @@ typedef struct{
     Subject_Type_Payload* list_type_subject;         // List of subject type
 }Data_Payload;
 
-// standard data date 7/20/2025 referent in table of subject of hanoi university of science and technology,
+typedef enum{
+    INT_T,
+    DOUBLE_T,
+    STRING_T,
+    STRUCT_T,
+    NULL_T
+}DataType;
+
+typedef struct{
+    void* data;                                      // Pointer to raw data
+    size_t size;                                     // Size of data
+    DataType type;                                   // type of raw data
+}ResponseMessage;
+
+// standard data date 7/20/2025 referent in table subject of hanoi university of science and technology,
 // major : Computer Science (IT1)
 // gen : 68 (2023)
 typedef enum {
-    co_so_nganh,
-    dai_cuong,
-    the_thao,
-    ly_luat_chinh_tri,
-    tu_chon,
-    thuc_tap,
-    modunI,
-    modunII,
-    modunIII,
-    modunIV,
-    modunV,
-    do_an_tot_nghiep,
+    co_so_nganh,                                      // Major subject type
+    dai_cuong,                                        // General subject type
+    the_thao,                                         // Sport subject type
+    ly_luat_chinh_tri,                                // Political Theory + General Law subject type
+    tu_chon,                                          // Supplementary knowledge block subject type
+    thuc_tap,                                         // Intern
+    modunI,                                           // Software technology
+    modunII,                                          // Information system
+    modunIII,                                         // Intelligent data analysis
+    modunIV,                                          // Business application development
+    modunV,                                           // Smart application development
+    do_an_tot_nghiep,                                 // Thesis
     sizeSubjectType
 } index_subject_type;
 
 typedef enum{
-    rt_50,
-    rt_60,
-    rt_70 
+    rt_50,                                            // 50% Final term calculate
+    rt_60,                                            // 60% Final term calculate
+    rt_70                                             // 70% Final term calculate
 }ratio_subject_t;
 
 /////// Global Variable //////////////////////
