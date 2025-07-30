@@ -196,7 +196,7 @@ int main(){
             .width = 1600,
             .height = 900,
             .windowName = "Courses Visual Program",
-            .fontPath = "../res/Pixellettersfull-BnJ5.ttf"
+            .fontPath = "../res/DejaVuSansMono-Bold.ttf"
         };
         RenderSetup(options, update, draw);
     }

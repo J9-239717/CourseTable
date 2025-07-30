@@ -132,11 +132,11 @@ void MainPage(){
                         i++;
                         Column(
                             .id = id__,
-                            .h = "fixed-55",
+                            .h = "fixed-60",
                             .w = "grow-0",
                         ){
                             Row(
-                                .h = "grow-0",
+                                .h = "fixed-30",
                                 .w = "grow-0"
                             ){
                                 TextS("  $~  ", textConfig);
@@ -153,6 +153,58 @@ void MainPage(){
                                     };
                                     Text(str,&textTitle);
                                 }
+                            }
+                            Row(
+                                .h = "fixed-30",
+                                .w = "grow-0",
+                                .align = "c"
+                            ){
+                                Separator(
+                                    .px = 3,
+                                    .w = "fixed-50"
+                                );
+                                // TreeLineContainer
+                                CLAY({
+                                    .layout = CLAY__INIT(Clay_LayoutConfig) {
+                                        .sizing = {
+                                            .width = CLAY_SIZING_FIXED(30),
+                                            .height = CLAY_SIZING_FIXED(20)
+                                        },
+                                        .childAlignment = {
+                                            .x = CLAY_ALIGN_X_LEFT,
+                                            .y = CLAY_ALIGN_Y_TOP
+                                        },
+                                        .layoutDirection = CLAY_TOP_TO_BOTTOM,
+                                        .childGap = 0
+                                    }
+                                }) {
+                                    //VerticalLine
+                                    CLAY({
+                                        .backgroundColor = {245, 230, 210, 255},
+                                        .layout = CLAY__INIT(Clay_LayoutConfig) {
+                                            .sizing = {
+                                                .width = CLAY_SIZING_FIXED(2),
+                                                .height = CLAY_SIZING_FIXED(10)
+                                            }
+                                        }
+                                    });
+                                    // HorizontalLine
+                                    CLAY({
+                                        .backgroundColor = {245, 230, 210, 255},
+                                        .layout = CLAY__INIT(Clay_LayoutConfig) {
+                                            .sizing = {
+                                                .width = CLAY_SIZING_FIXED(20),
+                                                .height = CLAY_SIZING_FIXED(2)
+                                            }
+                                        }
+                                    });
+                                }
+                                Clay_String str = \
+                                (Clay_String){
+                                    .length = strlen(curr->buffer),
+                                    .chars = curr->buffer
+                                };
+                                Text(str,&textTitle);
                             }
                         }
                         curr = curr->next;
