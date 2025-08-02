@@ -1,6 +1,8 @@
 #include <string.h>
 #define _CONST_SUBJECT
 
+#define SIZE_BASE_COMMAND 64
+
 #include "../backend_api.h"
 
 Subject_Pooling subject_pooling = {0};
@@ -12,6 +14,22 @@ const char* name_SJ_t[] = {
         "tu_chon", "thuc_tap", "modunI", "modunII", 
         "modunIII", "modunIV", "modunV", "do_an_tot_nghiep"
 };
+
+// command available
+const char* command[] = {
+    "-c", "-s", "-t","-ac","-backup","restore","reset"
+};
+
+typedef enum{
+    check,
+    setup,
+    table,
+    acount,
+    backup,
+    restore,
+    reset,
+    invalid
+}command_index;
 
 int IsPoolEmpty(){
     return subject_pooling.curroffset == 0;
@@ -170,4 +188,48 @@ int Check_Environment(){
     fclose(file);
     Write_Environment();
     return 1;
+}
+
+bype command__$[SIZE_BASE_COMMAND] = {0};
+bype count__$ = 0;
+
+void init_register(){
+    count__$ = 0;
+}
+
+command_index valid_command(const char op[]){
+    int str_len = 0;
+    for(command_index i = check; i < invalid ; i++){
+        str_len = strlen(command[i]);
+        str_len = strncmp(op,command[i],str_len);
+        if(str_len == 0) return i;
+    }
+    return invalid;
+}
+
+/*
+    return:
+        -1 for invaild arg
+        0  for error
+        1  for normaly
+*/
+int parse_arg(const char* arg){
+    /*
+        -c for checking ex: check cpa, check not pass subject...
+         └── arg: type of check
+        -s for set up data: set score
+         └── arg: subject-id score-midterm score-midterm
+        -t for show table
+         └── arg: empty for show all | (comming soon) "filter or sort"
+        -ac for login or logout
+         ├── arg: type [name]
+         └── type: -li [name] (for login), -lo (for logout),-dt (for show detail)
+        -backup for back up data
+        -restore for restore data
+        -reset for reset file data base to default
+    */
+}
+
+void System_Call_(char* arg,size_t len,ResponseMessage* res){
+    init_register();
 }
