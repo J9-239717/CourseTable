@@ -16,7 +16,6 @@ typedef struct{
 Environment env = {0};
 float Broad_UI_Size = 0.7f;         // this it Percent of Broad UI Size
 
-
 typedef enum{
     row,
     column
@@ -35,7 +34,7 @@ typedef struct UI_tree_t{
     }data_box;
     direction direction;
     type_attribute att;
-    struct UI_tree_t *child,*slibing;
+    struct UI_tree_t *parent,*child,*slibing;
 }UI_tree;
 UI_tree *ui__tree;
 UI_tree *global_ptr;
@@ -58,6 +57,11 @@ typedef struct{
 }Tree_Structure;
 Tree_Structure tree_structure = {0};
 
+void Reset_List_Tree_Structure(){
+    ArenaReset(&tree_structure.arena);
+    tree_structure.data = NULL;
+}
+
 typedef struct list_command_t{
     Arena box_allocate;
     node_command* node;
@@ -65,7 +69,7 @@ typedef struct list_command_t{
 
 list_command list_cmd = {0};
 
-void Reset_List(){
+void Reset_List_Command(){
     ArenaReset(&list_cmd.box_allocate);
     list_cmd.node = NULL;
 }
@@ -87,7 +91,7 @@ char* string_allocate(const char* src,size_t len,Arena *allo){
 
 UI_tree* CreateNodeUiTree(void){
     UI_tree* temp = (UI_tree*)calloc(1,sizeof(UI_tree));
-    temp->child = temp->slibing = NULL;
+    temp->child = temp->slibing = temp->parent = NULL;
     return temp;
 }
 
@@ -99,6 +103,7 @@ int Add_Child_(UI_tree* src,UI_tree* new){
     }
 
     src->child = new;
+    new->parent = src;
     return 1;
 }
 
@@ -106,12 +111,14 @@ int Add_Slibing_(UI_tree* src,UI_tree* new){
     if(!src->slibing){
         // First Slibing
         src->slibing = new;
+        new->parent = src->parent;
     }else{
         UI_tree* curr = src;
         while(curr->slibing){
             curr = curr->slibing;
         }
         curr->slibing = new;
+        new->parent = curr->parent;
     }
     return 1;
 }
@@ -136,7 +143,7 @@ void Genarate_Tree_Structure(Tree_Structure* tree_structure,UI_tree* node,int de
     char buffer_[64];
     char buffer = ' ';
     if(deep > 0){
-        buffer__[0] = ' ';
+        buffer__[0] = 's';
         buffer__[1] = 'r';
         for(int i = 2; i < deep+2;i++){
             buffer__[i] = 'l';
@@ -295,7 +302,7 @@ void BoardUI(){
 void UI_Tree(){
     char width_[10] = {0};
     sprintf(width_, "percent-%.1f", 1 - Broad_UI_Size);
-    Column(
+    Row(
         .id = "UI Tree Container",
         .h = "grow-0",
         .w = width_,
@@ -303,9 +310,84 @@ void UI_Tree(){
         .border = (Border){
             .width = "a-3",
             .color = NEUTRAL_200
-        }
+        },
     ){
-        // TODO: impiment directory show with pointer
+        Margin(
+            .id = "Margin for UI tree",
+            .p = 10
+        ){
+            Column(
+                .h = "grow-0",
+                .w = "grow-0", 
+            ){
+                char* ch = NULL;
+                node_command* curr = tree_structure.data;
+                while(curr){
+                    Row(
+                        .h = "fixed-23",
+                        .w = "grow-0"
+                    ){
+                        ch = curr->buffer;
+                        if(*ch == 's' || *ch == 'l'||*ch == 'r'){
+                            if(*ch == 's'){ // first char
+                                Separator(
+                                    .w = "fixed-10"
+                                );
+                            }
+                            CLAY({
+                                .layout = CLAY__INIT(Clay_LayoutConfig) {
+                                    .sizing = {
+                                        .width = CLAY_SIZING_FIXED(30),
+                                        .height = CLAY_SIZING_FIXED(20)
+                                    },
+                                    .childAlignment = {
+                                        .x = CLAY_ALIGN_X_LEFT,
+                                        .y = CLAY_ALIGN_Y_TOP
+                                    },
+                                    .layoutDirection = CLAY_TOP_TO_BOTTOM,
+                                    .childGap = 0
+                                }
+                            }) {
+                                while(*ch != '['){
+                                    if(*ch == 'r'){
+                                        //VerticalLine
+                                        CLAY({
+                                            .backgroundColor = {245, 230, 210, 255},
+                                            .layout = CLAY__INIT(Clay_LayoutConfig) {
+                                                .sizing = {
+                                                    .width = CLAY_SIZING_FIXED(2),
+                                                    .height = CLAY_SIZING_FIXED(10)
+                                                }
+                                            }
+                                        });
+                                    }else if(*ch == 'l'){
+                                        // HorizontalLine
+                                        CLAY({
+                                            .backgroundColor = {245, 230, 210, 255},
+                                            .layout = CLAY__INIT(Clay_LayoutConfig) {
+                                                .sizing = {
+                                                    .width = CLAY_SIZING_FIXED(20),
+                                                    .height = CLAY_SIZING_FIXED(2)
+                                                }
+                                            }
+                                        });
+                                    }
+                                    ch++;
+                                }
+                            }
+                        }
+                        Clay_String str = \
+                        (Clay_String){
+                            .length = strlen(ch),
+                            .chars = ch
+                        };
+                        Clay__OpenTextElement(str,&textConfig);
+
+                        curr = curr->next;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -399,10 +481,46 @@ int Parse_Command(){
     return count_arg;
 }
 
+void Handle_Command(int argc,node_command* node){
+    node_command* curr = node;
+    while(curr != NULL){
+        if(strncmp(curr->buffer,"PT",2) == 0){ // move global pointer
+            curr = curr->next;
+            if(!curr){
+                printf("[ERROR] something wrong please you argument pt with [-b|-n|-c|-d]\n");
+                return;
+            }
+            if(strncmp(curr->buffer, "-P",2) == 0){ // move to parent
+                if(!global_ptr->parent) return;
+                global_ptr = global_ptr->parent;
+                tree_structure.changed = true;
+            }else if(strncmp(curr->buffer, "-S",2) == 0){ // move to slibing
+                if(!global_ptr->slibing) return;
+                global_ptr = global_ptr->slibing;
+                tree_structure.changed = true;
+            }else if(strncmp(curr->buffer, "-C",2) == 0){ // move to child
+                if(!global_ptr->child) return;
+                global_ptr = global_ptr->child;
+                tree_structure.changed = true;
+            }else if(strncmp(curr->buffer,"-R",2) == 0){ // reset to root
+                global_ptr = ui__tree;
+                tree_structure.changed = true;
+            }else{
+                printf("[ERROR] invalid argument\n");
+            }
+        }else{
+            printf("[ERROR] %s is invalid command\n", curr->buffer);
+        }
+
+        curr = curr->next;
+    }
+}
+
 void Update(){
     handleTyping();
     if(IsKeyPressed(KEY_ENTER)){
         int argc = Parse_Command();
+        Handle_Command(argc,list_cmd.node);
         resetStringBuffer();
         // try print
         node_command* curr = list_cmd.node;
@@ -410,23 +528,24 @@ void Update(){
         for(int i = 0; i < argc; i++,curr = curr->next){
             printf("  - %s\n", curr->buffer);
         }
-        Reset_List();
+        Reset_List_Command();
     }
 
     if(tree_structure.changed){
+        Reset_List_Tree_Structure();
         Gen_Tree_UI();
         tree_structure.changed = false;
 
-        node_command* curr = tree_structure.data;
-        while (curr)
-        {
-            printf("%s", curr->buffer);
-            curr = curr->next;
-        }
+        // node_command* curr = tree_structure.data;
+        // while (curr)
+        // {
+        //     printf("%s", curr->buffer);
+        //     curr = curr->next;
+        // }
     }
 }
 
-char dummy_text[] = "Xang is \nGay Lord";
+char dummy_text[] = "Xang is Gay Lord";
 
 void Init(){
     // Init ENV
@@ -460,6 +579,7 @@ void Init(){
     ui__tree->direction = row;
     UI_tree *dummy_child = CreateNodeUiTree();
     ui__tree->child = dummy_child;
+    dummy_child->parent = ui__tree;
 
     dummy_child->att = text;
     dummy_child->data_box.text = dummy_text;
